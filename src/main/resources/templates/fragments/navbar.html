@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RailWay Pro - Next-Gen Railway Booking</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;family=Outfit:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+  <link th:href="@{/css/styles.css}" rel="stylesheet"/>
+</head>
+<body>
+
+<!-- ═══ NAVBAR ═══════════════════════════════════════════════════════════ -->
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="/" class="navbar-brand">
+      <div class="navbar-logo">🚂</div>
+      <span class="navbar-brand-text">Rail<span>Way</span> Pro</span>
+    </a>
+
+    <ul class="navbar-links">
+      <li><a th:href="@{/}" th:classappend="${#httpServletRequest.requestURI == '/' ? 'active' : ''}">Home</a></li>
+      <li><a th:href="@{/trains/search(source='New Delhi',destination='Mumbai Central',date=${#temporals.format(#temporals.createNow(),'yyyy-MM-dd')})}">Search Trains</a></li>
+      <li><a th:href="@{/booking/pnr}">PNR Status</a></li>
+      <li sec:authorize="isAuthenticated()"><a th:href="@{/booking/my-bookings}">My Tickets</a></li>
+      <li sec:authorize="hasRole('ADMIN')"><a th:href="@{/admin}">Admin</a></li>
+    </ul>
+
+    <div class="navbar-actions">
+      <div sec:authorize="!isAuthenticated()">
+        <a th:href="@{/register}" class="btn btn-ghost btn-sm">Sign Up</a>
+        <a th:href="@{/login}" class="btn btn-primary btn-sm">Login</a>
+      </div>
+      <div sec:authorize="isAuthenticated()" class="flex items-center gap-2">
+        <span class="text-sm text-muted">Hello, <strong sec:authentication="name"></strong></span>
+        <a th:href="@{/profile}" class="btn btn-outline btn-sm">Profile</a>
+        <form th:action="@{/logout}" method="post" style="display:inline">
+          <button type="submit" class="btn btn-ghost btn-sm">Logout</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</nav>
+<!-- END NAVBAR -->
+
+<!-- ═══ FLASH ALERTS ═════════════════════════════════════════════════════ -->
+<div th:if="${success}" class="container mt-2">
+  <div class="alert alert-success">✅ <span th:text="${success}"></span></div>
+</div>
+<div th:if="${error}" class="container mt-2">
+  <div class="alert alert-error">❌ <span th:text="${error}"></span></div>
+</div>
+<div th:if="${message}" class="container mt-2">
+  <div class="alert alert-info">ℹ️ <span th:text="${message}"></span></div>
+</div>
+
+</body>
+</html>

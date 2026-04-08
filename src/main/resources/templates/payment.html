@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Select Payment Method - RailWay Pro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=Outfit:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+  <link th:href="@{/css/styles.css}" rel="stylesheet"/>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="/" class="navbar-brand">
+      <div class="navbar-logo">🚂</div>
+      <span class="navbar-brand-text">Rail<span>Way</span> Pro</span>
+    </a>
+    <ul class="navbar-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/booking/new">Book Ticket</a></li>
+      <li><a href="/booking/my-bookings" class="active">My Bookings</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- Progress Bar -->
+<div style="background:#fff; border-bottom:1px solid var(--border); padding:1rem 0;">
+  <div class="container">
+    <div style="display:flex; gap:0.5rem; align-items:center;">
+      <div style="display:flex; align-items:center; gap:0.5rem; color:var(--success); font-weight:700; font-size:0.9rem;">
+        <span style="width:28px;height:28px;border-radius:50%;background:var(--success);color:#fff;display:flex;align-items:center;justify-content:center;font-size:0.8rem;">✓</span>
+        Select Train
+      </div>
+      <div style="flex:1;height:2px;background:var(--success);"></div>
+      <div style="display:flex; align-items:center; gap:0.5rem; color:var(--success); font-weight:700; font-size:0.9rem;">
+        <span style="width:28px;height:28px;border-radius:50%;background:var(--success);color:#fff;display:flex;align-items:center;justify-content:center;font-size:0.8rem;">✓</span>
+        Passenger Details
+      </div>
+      <div style="flex:1;height:2px;background:var(--primary);"></div>
+      <div style="display:flex; align-items:center; gap:0.5rem; color:var(--primary); font-weight:700; font-size:0.9rem;">
+        <span style="width:28px;height:28px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:0.8rem;">3</span>
+        Payment
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container" style="padding:3rem 1rem; max-width:900px; margin:0 auto;">
+
+  <!-- Error Message -->
+  <div th:if="${error}" class="alert alert-error" style="margin-bottom:1.5rem;">
+    ⚠️ <span th:text="${error}"></span>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>💳 Select Payment Method</h2>
+      <p class="text-muted text-sm">Choose your preferred payment option</p>
+    </div>
+
+    <div class="card-body">
+      <!-- Ticket Summary -->
+      <div style="background:var(--gray-50); border-radius:var(--radius-md); padding:1rem; margin-bottom:2rem; border:1px solid var(--border);">
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem;">
+          <div>
+            <span class="text-muted text-sm">PNR</span>
+            <div style="font-weight:700; font-size:1.1rem;" th:text="${ticket.pnr}"></div>
+          </div>
+          <div>
+            <span class="text-muted text-sm">Amount to Pay</span>
+            <div style="font-weight:700; font-size:1.1rem; color:var(--primary);">₹<span th:text="${#numbers.formatDecimal(ticket.totalFare, 1, 2)}"></span></div>
+          </div>
+          <div>
+            <span class="text-muted text-sm">Journey Date</span>
+            <div style="font-weight:700; font-size:1.1rem;" th:text="${#temporals.format(ticket.journeyDate, 'dd MMM yyyy')}"></div>
+          </div>
+          <div>
+            <span class="text-muted text-sm">Class</span>
+            <div style="font-weight:700; font-size:1.1rem;" th:text="${ticket.travelClass.displayName}"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment Methods Grid -->
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:1rem; margin-top:2rem;">
+        
+        <!-- Razorpay -->
+        <form th:action="@{/booking/initiate-payment/{pnr}(pnr=${ticket.pnr})}" method="post" style="grid-column:span 1;">
+          <input type="hidden" name="paymentMethod" value="RAZORPAY"/>
+          <button type="submit" class="payment-method-btn" style="width:100%; padding:2rem 1rem; text-align:center; cursor:pointer; border:2px solid var(--border); border-radius:var(--radius-md); background:#fff; transition:all 200ms;">
+            <div style="font-size:2rem; margin-bottom:0.5rem;">💳</div>
+            <div style="font-weight:700; color:var(--text); margin-bottom:0.25rem;">Razorpay</div>
+            <div style="font-size:0.75rem; color:var(--gray-400);">Card • UPI • Wallet</div>
+          </button>
+        </form>
+
+        <!-- UPI -->
+        <form th:action="@{/booking/initiate-payment/{pnr}(pnr=${ticket.pnr})}" method="post" style="grid-column:span 1;">
+          <input type="hidden" name="paymentMethod" value="UPI"/>
+          <button type="submit" class="payment-method-btn" style="width:100%; padding:2rem 1rem; text-align:center; cursor:pointer; border:2px solid var(--border); border-radius:var(--radius-md); background:#fff; transition:all 200ms;">
+            <div style="font-size:2rem; margin-bottom:0.5rem;">📱</div>
+            <div style="font-weight:700; color:var(--text); margin-bottom:0.25rem;">UPI</div>
+            <div style="font-size:0.75rem; color:var(--gray-400);">Fast & Secure</div>
+          </button>
+        </form>
+
+        <!-- Net Banking -->
+        <form th:action="@{/booking/initiate-payment/{pnr}(pnr=${ticket.pnr})}" method="post" style="grid-column:span 1;">
+          <input type="hidden" name="paymentMethod" value="NET_BANKING"/>
+          <button type="submit" class="payment-method-btn" style="width:100%; padding:2rem 1rem; text-align:center; cursor:pointer; border:2px solid var(--border); border-radius:var(--radius-md); background:#fff; transition:all 200ms;">
+            <div style="font-size:2rem; margin-bottom:0.5rem;">🏦</div>
+            <div style="font-weight:700; color:var(--text); margin-bottom:0.25rem;">Net Banking</div>
+            <div style="font-size:0.75rem; color:var(--gray-400);">All Banks</div>
+          </button>
+        </form>
+
+        <!-- Credit Card -->
+        <form th:action="@{/booking/initiate-payment/{pnr}(pnr=${ticket.pnr})}" method="post" style="grid-column:span 1;">
+          <input type="hidden" name="paymentMethod" value="CREDIT_CARD"/>
+          <button type="submit" class="payment-method-btn" style="width:100%; padding:2rem 1rem; text-align:center; cursor:pointer; border:2px solid var(--border); border-radius:var(--radius-md); background:#fff; transition:all 200ms;">
+            <div style="font-size:2rem; margin-bottom:0.5rem;">💳</div>
+            <div style="font-weight:700; color:var(--text); margin-bottom:0.25rem;">Credit Card</div>
+            <div style="font-size:0.75rem; color:var(--gray-400);">Visa, Mastercard</div>
+          </button>
+        </form>
+
+        <!-- Debit Card -->
+        <form th:action="@{/booking/initiate-payment/{pnr}(pnr=${ticket.pnr})}" method="post" style="grid-column:span 1;">
+          <input type="hidden" name="paymentMethod" value="DEBIT_CARD"/>
+          <button type="submit" class="payment-method-btn" style="width:100%; padding:2rem 1rem; text-align:center; cursor:pointer; border:2px solid var(--border); border-radius:var(--radius-md); background:#fff; transition:all 200ms;">
+            <div style="font-size:2rem; margin-bottom:0.5rem;">🏧</div>
+            <div style="font-weight:700; color:var(--text); margin-bottom:0.25rem;">Debit Card</div>
+            <div style="font-size:0.75rem; color:var(--gray-400);">Visa, Rupay</div>
+          </button>
+        </form>
+
+        <!-- IRCTC Wallet -->
+        <form th:action="@{/booking/initiate-payment/{pnr}(pnr=${ticket.pnr})}" method="post" style="grid-column:span 1;">
+          <input type="hidden" name="paymentMethod" value="IRCTC_WALLET"/>
+          <button type="submit" class="payment-method-btn" style="width:100%; padding:2rem 1rem; text-align:center; cursor:pointer; border:2px solid var(--border); border-radius:var(--radius-md); background:#fff; transition:all 200ms;">
+            <div style="font-size:2rem; margin-bottom:0.5rem;">🎫</div>
+            <div style="font-weight:700; color:var(--text); margin-bottom:0.25rem;">IRCTC</div>
+            <div style="font-size:0.75rem; color:var(--gray-400);">Use your balance</div>
+          </button>
+        </form>
+
+      </div>
+
+      <div style="margin-top:2rem; text-align:center;">
+        <a href="/booking/my-bookings" class="text-sm" style="color:var(--primary); text-decoration:none;">← Back to My Bookings</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<style>
+  .payment-method-btn:hover {
+    border-color: var(--primary) !important;
+    background: var(--primary-light) !important;
+    box-shadow: 0 2px 8px rgba(26, 86, 219, 0.1);
+  }
+  
+  .payment-method-btn:active {
+    transform: scale(0.98);
+  }
+</style>
+
+</body>
+</html>

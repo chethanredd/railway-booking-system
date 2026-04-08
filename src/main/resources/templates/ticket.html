@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title th:text="'PNR ' + ${ticket?.pnr} + ' - RailWay Pro'">Ticket - RailWay Pro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=Outfit:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+  <link th:href="@{/css/styles.css}" rel="stylesheet"/>
+  <style>
+    @media print {
+      .no-print { display:none!important; }
+      .navbar { display:none!important; }
+      body { background:#fff; }
+      .ticket-card { box-shadow:none; }
+    }
+  </style>
+</head>
+<body style="background:var(--gray-100);">
+
+<nav class="navbar no-print">
+  <div class="navbar-inner">
+    <a href="/" class="navbar-brand">
+      <div class="navbar-logo">🚂</div>
+      <span class="navbar-brand-text">Rail<span>Way</span> Pro</span>
+    </a>
+    <div class="navbar-actions">
+      <a th:href="@{/booking/my-bookings}" class="btn btn-ghost btn-sm no-print">← My Bookings</a>
+      <button onclick="window.print()" class="btn btn-primary btn-sm no-print">🖨️ Print Ticket</button>
+    </div>
+  </div>
+</nav>
+
+<div class="container" style="padding:2rem 1.5rem;">
+  <!-- Success Banner -->
+  <div th:if="${success}" class="alert alert-success animate-in mb-3 no-print">
+    ✅ <span th:text="${success}"></span>
+  </div>
+
+  <div th:if="${ticket}" class="ticket-card animate-in">
+    <!-- Ticket Header -->
+    <div class="ticket-header">
+      <div>
+        <div style="font-size:0.8rem; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.25rem;">PNR Number</div>
+        <div class="ticket-pnr" th:text="${ticket.pnr}"></div>
+        <div style="font-size:0.85rem; color:rgba(255,255,255,0.7); margin-top:0.5rem;"
+             th:text="'Booked on ' + ${#temporals.format(ticket.bookedAt,'dd MMM yyyy, h:mm a')}"></div>
+      </div>
+      <div style="text-align:right;">
+        <span class="ticket-status-badge"
+              th:classappend="${ticket.status.name() == 'CONFIRMED'} ? 'status-confirmed' :
+                              (${ticket.status.name() == 'WAITLISTED'} ? 'status-waitlisted' :
+                              (${ticket.status.name() == 'CANCELLED'} ? 'status-cancelled' : 'status-rac'))"
+              th:text="${ticket.status.name()}"></span>
+        <div style="color:rgba(255,255,255,0.75); font-size:0.85rem; margin-top:0.5rem;"
+             th:text="${ticket.travelClass.displayName} + ' Class'"></div>
+      </div>
+    </div>
+
+    <div class="ticket-body">
+      <!-- Route -->
+      <div class="ticket-route">
+        <div>
+          <div class="ticket-station-name" th:text="${ticket.boardingStation}"></div>
+          <div class="ticket-station-code" th:text="${#temporals.format(ticket.train.departureTime,'HH:mm')}"></div>
+        </div>
+        <div style="text-align:center; flex:1;">
+          <div style="font-size:0.8rem; color:var(--gray-500); margin-bottom:0.25rem;"
+               th:text="${ticket.train.trainNumber} + ' · ' + ${ticket.train.trainName}"></div>
+          <div style="border-top:2px dashed var(--primary); position:relative; margin:0.5rem 2rem;">
+            <span style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);font-size:1.25rem;">🚆</span>
+          </div>
+          <div style="font-size:0.8rem; color:var(--gray-500); margin-top:0.25rem;"
+               th:text="${ticket.train.durationMinutes / 60} + 'h ' + ${ticket.train.durationMinutes % 60} + 'm'"></div>
+        </div>
+        <div style="text-align:right;">
+          <div class="ticket-station-name" th:text="${ticket.destinationStation}"></div>
+          <div class="ticket-station-code" th:text="${#temporals.format(ticket.train.arrivalTime,'HH:mm')}"></div>
+        </div>
+      </div>
+      <!-- Journey Date & Class -->
+      <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:1.5rem;">
+        <div style="text-align:center; padding:0.875rem; background:var(--gray-50); border-radius:var(--radius-md);">
+          <div class="text-muted text-xs" style="text-transform:uppercase;letter-spacing:.05em;">Journey Date</div>
+          <div style="font-weight:800; margin-top:.25rem;" th:text="${#temporals.format(ticket.journeyDate,'dd MMM yyyy')}"></div>
+        </div>
+        <div style="text-align:center; padding:0.875rem; background:var(--gray-50); border-radius:var(--radius-md);">
+          <div class="text-muted text-xs" style="text-transform:uppercase;letter-spacing:.05em;">Class</div>
+          <div style="font-weight:800; margin-top:.25rem;" th:text="${ticket.travelClass.code}"></div>
+        </div>
+        <div style="text-align:center; padding:0.875rem; background:var(--gray-50); border-radius:var(--radius-md);">
+          <div class="text-muted text-xs" style="text-transform:uppercase;letter-spacing:.05em;">Passengers</div>
+          <div style="font-weight:800; margin-top:.25rem;" th:text="${#lists.size(ticket.passengers)}"></div>
+        </div>
+        <div style="text-align:center; padding:0.875rem; background:var(--primary-light); border-radius:var(--radius-md);">
+          <div class="text-muted text-xs" style="text-transform:uppercase;letter-spacing:.05em;">Total Fare</div>
+          <div style="font-weight:800; color:var(--primary); margin-top:.25rem;"
+               th:text="'₹' + ${#numbers.formatInteger(ticket.totalFare,1,'COMMA')}"></div>
+        </div>
+      </div>
+
+      <!-- Passengers Table -->
+      <h3 style="font-size:1rem; margin-bottom:0.75rem;">👥 Passenger Details</h3>
+      <table class="passenger-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Age</th>
+            <th>Gender</th>
+            <th>Seat</th>
+            <th>Coach</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="p, stat : ${ticket.passengers}">
+            <td th:text="${stat.count}"></td>
+            <td style="font-weight:600;" th:text="${p.name}"></td>
+            <td th:text="${p.age}"></td>
+            <td th:text="${p.gender}"></td>
+            <td th:text="${p.seatNumber} ?: 'WL/' + ${p.waitlistNumber}"></td>
+            <td th:text="${p.coachNumber} ?: '—'"></td>
+            <td>
+              <span th:text="${p.seatStatus}"
+                    th:style="${p.seatStatus.name() == 'CONFIRMED'} ? 'color:var(--success);font-weight:700' :
+                               'color:var(--warn);font-weight:700'"></span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Payment Info -->
+      <div th:if="${payment}" style="margin-top:1.5rem; padding:1rem; background:var(--gray-50); border-radius:var(--radius-md);">
+        <h3 style="font-size:1rem; margin-bottom:0.75rem;">💳 Payment Details</h3>
+        <div style="display:flex; flex-wrap:wrap; gap:1.5rem; font-size:0.9rem;">
+          <div><span class="text-muted">Transaction ID:</span> <strong th:text="${payment.transactionId}"></strong></div>
+          <div><span class="text-muted">Method:</span> <strong th:text="${payment.method.name().replace('_',' ')}"></strong></div>
+          <div><span class="text-muted">Status:</span>
+            <strong th:text="${payment.status}" style="color:var(--success);"></strong>
+          </div>
+          <div><span class="text-muted">Paid:</span>
+            <strong th:text="'₹' + ${#numbers.formatInteger(payment.amount,1,'COMMA')}"></strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex gap-2 mt-4 no-print" style="justify-content:flex-end; flex-wrap:wrap;">
+        <a th:href="@{/booking/my-bookings}" class="btn btn-ghost">← All Bookings</a>
+        <button onclick="window.print()" class="btn btn-outline">🖨️ Print / Download</button>
+        <a th:if="${ticket.status.name() != 'CANCELLED'}"
+           th:href="@{/booking/cancel/{pnr}(pnr=${ticket.pnr})}"
+           class="btn btn-danger">✕ Cancel Ticket</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

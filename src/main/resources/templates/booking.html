@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Book Ticket - RailWay Pro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=Outfit:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+  <link th:href="@{/css/styles.css}" rel="stylesheet"/>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="/" class="navbar-brand">
+      <div class="navbar-logo">🚂</div>
+      <span class="navbar-brand-text">Rail<span>Way</span> Pro</span>
+    </a>
+    <ul class="navbar-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="#" class="active">Book Ticket</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- Progress Bar -->
+<div style="background:#fff; border-bottom:1px solid var(--border); padding:1rem 0;">
+  <div class="container">
+    <div style="display:flex; gap:0.5rem; align-items:center;">
+      <div style="display:flex; align-items:center; gap:0.5rem; color:var(--success); font-weight:700; font-size:0.9rem;">
+        <span style="width:28px;height:28px;border-radius:50%;background:var(--success);color:#fff;display:flex;align-items:center;justify-content:center;font-size:0.8rem;">✓</span>
+        Select Train
+      </div>
+      <div style="flex:1;height:2px;background:var(--primary);"></div>
+      <div style="display:flex; align-items:center; gap:0.5rem; color:var(--primary); font-weight:700; font-size:0.9rem;">
+        <span style="width:28px;height:28px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:0.8rem;">2</span>
+        Passenger Details
+      </div>
+      <div style="flex:1;height:2px;background:var(--border);"></div>
+      <div style="display:flex; align-items:center; gap:0.5rem; color:var(--gray-400); font-weight:600; font-size:0.9rem;">
+        <span style="width:28px;height:28px;border-radius:50%;background:var(--gray-200);color:var(--gray-500);display:flex;align-items:center;justify-content:center;font-size:0.8rem;">3</span>
+        Payment
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="booking-layout">
+  <!-- Left: Form -->
+  <div>
+    <div class="card mb-3">
+      <div class="card-header">
+        <h2 style="font-size:1.1rem;">🚂 Train Details</h2>
+      </div>
+      <div class="card-body">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+          <div>
+            <div class="text-muted text-xs" th:text="${train.trainNumber}"></div>
+            <div style="font-size:1.1rem; font-weight:800;" th:text="${train.trainName}"></div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-size:1.375rem; font-weight:800;" th:text="${#temporals.format(train.departureTime,'HH:mm')}"></div>
+            <div class="text-muted text-xs" th:text="${train.source}"></div>
+          </div>
+          <div style="text-align:center; color:var(--gray-400);">
+            <div class="text-sm">→ <span th:text="${train.durationMinutes / 60}"></span>h <span th:text="${train.durationMinutes % 60}"></span>m</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-size:1.375rem; font-weight:800;" th:text="${#temporals.format(train.arrivalTime,'HH:mm')}"></div>
+            <div class="text-muted text-xs" th:text="${train.destination}"></div>
+          </div>
+          <div>
+            <span style="background:var(--primary-light); color:var(--primary); padding:0.25rem 0.75rem; border-radius:999px; font-size:0.8rem; font-weight:700;"
+                  th:text="${travelClass.displayName}"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Passenger Form -->
+    <form th:action="@{/booking/confirm}" method="post" th:object="${bookingRequest}" id="bookingForm">
+      <input type="hidden" th:field="*{trainId}"/>
+      <input type="hidden" th:field="*{journeyDate}"/>
+      <input type="hidden" th:field="*{boardingStation}"/>
+      <input type="hidden" th:field="*{destinationStation}"/>
+      <input type="hidden" th:field="*{travelClass}"/>
+
+      <div class="card mb-3">
+        <div class="card-header">
+          <h2 style="font-size:1.1rem;">👥 Passenger Details</h2>
+          <span class="text-muted text-sm">Max 6 passengers per booking</span>
+        </div>
+        <div class="card-body">
+          <div th:each="i : ${#numbers.sequence(0, passengerCount - 1)}" class="passenger-row">
+            <div class="passenger-row-header">
+              <strong class="text-sm">Passenger <span th:text="${i + 1}"></span></strong>
+            </div>
+            <div style="display:grid; grid-template-columns:2fr 1fr 1fr; gap:0.875rem;">
+              <div class="form-group">
+                <label class="form-label">Full Name</label>
+                <input type="text" class="form-control"
+                       th:name="'passengers[' + ${i} + '].name'"
+                       placeholder="As on ID proof" required/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Age</label>
+                <input type="number" class="form-control"
+                       th:name="'passengers[' + ${i} + '].age'"
+                       min="1" max="125" placeholder="Years" required/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Gender</label>
+                <select class="form-control" th:name="'passengers[' + ${i} + '].gender'" required>
+                  <option value="">Select</option>
+                  <option th:each="g : ${genderOptions}" th:value="${g.name()}" th:text="${g.name()}"></option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment Method -->
+      <div class="card mb-3">
+        <div class="card-header"><h2 style="font-size:1.1rem;">💳 Payment Method</h2></div>
+        <div class="card-body">
+          <div class="payment-methods">
+            <label class="payment-method-card" th:each="method : ${paymentMethods}">
+              <input type="radio" name="paymentMethod" th:value="${method.name()}"
+                     style="display:none" required/>
+              <span class="payment-icon">
+                <span th:switch="${method.name()}">
+                  <span th:case="'UPI'">📱</span>
+                  <span th:case="'NET_BANKING'">🏦</span>
+                  <span th:case="'CREDIT_CARD'">💳</span>
+                  <span th:case="'DEBIT_CARD'">💳</span>
+                  <span th:case="'WALLET'">👛</span>
+                  <span th:case="*">💰</span>
+                </span>
+              </span>
+              <span class="payment-name" th:text="${method.name().replace('_',' ')}"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-xl w-full" id="confirmBtn">
+        🎫 Confirm &amp; Pay
+      </button>
+      <p class="text-center text-muted text-xs mt-2">
+        By booking, you agree to our cancellation &amp; refund policies.
+      </p>
+    </form>
+  </div>
+
+  <!-- Right: Order Summary -->
+  <div>
+    <div class="order-summary">
+      <h3 style="font-size:1rem; margin-bottom:1rem;">🧾 Fare Summary</h3>
+      <div class="summary-row">
+        <span class="text-muted text-sm">Train</span>
+        <span class="text-sm bold" th:text="${train.trainNumber}"></span>
+      </div>
+      <div class="summary-row">
+        <span class="text-muted text-sm">Class</span>
+        <span class="text-sm bold" th:text="${travelClass.code}"></span>
+      </div>
+      <div class="summary-row">
+        <span class="text-muted text-sm">Journey Date</span>
+        <span class="text-sm bold" th:text="${#temporals.format(bookingRequest.journeyDate,'dd MMM yyyy')}"></span>
+      </div>
+      <div class="summary-row">
+        <span class="text-muted text-sm">Passengers</span>
+        <span class="text-sm bold" th:text="${passengerCount}"></span>
+      </div>
+      <div class="summary-row">
+        <span class="text-muted text-sm">Distance</span>
+        <span class="text-sm bold" th:text="${train.distanceKm} + ' km'"></span>
+      </div>
+      <div class="summary-row total">
+        <span>Total Fare</span>
+        <div class="fare-badge">₹<span id="totalFare">—</span></div>
+      </div>
+      <p class="text-muted text-xs mt-2">* Includes reservation charge &amp; GST where applicable</p>
+      <div style="margin-top:1.5rem; padding:0.875rem; background:var(--primary-light); border-radius:var(--radius-md);">
+        <div style="font-size:0.8rem; color:var(--primary); font-weight:700;">✅ Booking Guarantee</div>
+        <div style="font-size:0.8rem; color:var(--gray-600); margin-top:0.25rem;">If no seats are available, you'll be added to the waitlist automatically.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script th:src="@{/js/app.js}"></script>
+<script>
+  // Highlight selected payment method
+  document.querySelectorAll('.payment-method-card').forEach(card => {
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.payment-method-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      card.querySelector('input').checked = true;
+    });
+  });
+
+  // Show loading on submit
+  document.getElementById('bookingForm').addEventListener('submit', () => {
+    const btn = document.getElementById('confirmBtn');
+    btn.innerHTML = '<span class="spinner"></span> Processing...';
+    btn.disabled = true;
+  });
+</script>
+</body>
+</html>

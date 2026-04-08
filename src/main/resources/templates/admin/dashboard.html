@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard - RailWay Pro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=Outfit:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+  <link th:href="@{/css/styles.css}" rel="stylesheet"/>
+</head>
+<body>
+<div class="admin-layout">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-brand">🚂 RailWay Pro<br/><small style="font-size:0.7rem; font-weight:400; color:rgba(255,255,255,0.5);">Admin Panel</small></div>
+    <ul class="sidebar-nav">
+      <li><a th:href="@{/admin}" class="active"><span class="nav-icon">📊</span> Dashboard</a></li>
+      <li><a th:href="@{/admin/trains}"><span class="nav-icon">🚂</span> Trains</a></li>
+      <li><a th:href="@{/admin/users}"><span class="nav-icon">👥</span> Users</a></li>
+      <li><a th:href="@{/admin/bookings}"><span class="nav-icon">🎫</span> Bookings</a></li>
+      <li style="margin-top:auto; padding-top:2rem;">
+        <a href="/"><span class="nav-icon">🏠</span> Public Site</a>
+      </li>
+      <li>
+        <form th:action="@{/logout}" method="post">
+          <button type="submit" style="background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:0.75rem;padding:0.75rem 1rem;border-radius:12px;color:rgba(255,255,255,0.7);font-size:0.9rem;font-weight:500;width:100%;transition:all 0.2s;">
+            <span class="nav-icon">🚪</span> Logout
+          </button>
+        </form>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Main -->
+  <div class="admin-main">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Dashboard</h1>
+        <div class="breadcrumb">Welcome back, Admin</div>
+      </div>
+    </div>
+
+    <div th:if="${success}" class="alert alert-success">✅ <span th:text="${success}"></span></div>
+
+    <!-- Stats Grid -->
+    <div class="dashboard-grid">
+      <div class="stat-card blue animate-in">
+        <div class="stat-icon blue">🚂</div>
+        <div class="stat-value" th:text="${totalTrains}">0</div>
+        <div class="stat-label">Total Trains</div>
+      </div>
+      <div class="stat-card green animate-in animate-delay-1">
+        <div class="stat-icon green">👥</div>
+        <div class="stat-value" th:text="${totalUsers}">0</div>
+        <div class="stat-label">Registered Users</div>
+      </div>
+      <div class="stat-card yellow animate-in animate-delay-2">
+        <div class="stat-icon yellow">🎫</div>
+        <div class="stat-value" th:text="${totalBookings}">0</div>
+        <div class="stat-label">Total Bookings</div>
+      </div>
+      <div class="stat-card red animate-in animate-delay-3">
+        <div class="stat-icon red">💰</div>
+        <div class="stat-value">₹<span th:text="${#numbers.formatInteger(totalRevenue,1,'COMMA')}">0</span></div>
+        <div class="stat-label">Total Revenue</div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card mb-3">
+      <div class="card-header"><h2 style="font-size:1rem;">⚡ Quick Actions</h2></div>
+      <div class="card-body">
+        <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+          <a th:href="@{/admin/trains/add}" class="btn btn-primary">+ Add Train</a>
+          <a th:href="@{/admin/trains}" class="btn btn-outline">Manage Trains</a>
+          <a th:href="@{/admin/users}" class="btn btn-outline">Manage Users</a>
+          <a th:href="@{/admin/bookings}" class="btn btn-outline">View Bookings</a>
+          <a href="/h2-console" target="_blank" class="btn btn-ghost">🗄️ H2 Database Console</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- System Info -->
+    <div class="card">
+      <div class="card-header"><h2 style="font-size:1rem;">ℹ️ System Information</h2></div>
+      <div class="card-body">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; font-size:0.9rem;">
+          <div><span class="text-muted">Database:</span> <strong>H2 In-Memory (Dev) / MySQL (Prod)</strong></div>
+          <div><span class="text-muted">Framework:</span> <strong>Spring Boot 3.2 + Spring Security</strong></div>
+          <div><span class="text-muted">ORM:</span> <strong>Hibernate / Spring Data JPA</strong></div>
+          <div><span class="text-muted">View Engine:</span> <strong>Thymeleaf</strong></div>
+          <div><span class="text-muted">Architecture:</span> <strong>MVC (Controller → Service → DAO)</strong></div>
+          <div><span class="text-muted">Port:</span> <strong>8080</strong></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

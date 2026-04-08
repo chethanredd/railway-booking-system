@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Add/Edit Train - Admin - RailWay Pro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=Outfit:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+  <link th:href="@{/css/styles.css}" rel="stylesheet"/>
+</head>
+<body>
+<div class="admin-layout">
+  <div class="sidebar">
+    <div class="sidebar-brand">🚂 RailWay Pro<br/><small style="font-size:0.7rem; font-weight:400; color:rgba(255,255,255,0.5);">Admin Panel</small></div>
+    <ul class="sidebar-nav">
+      <li><a th:href="@{/admin}"><span class="nav-icon">📊</span> Dashboard</a></li>
+      <li><a th:href="@{/admin/trains}" class="active"><span class="nav-icon">🚂</span> Trains</a></li>
+      <li><a th:href="@{/admin/users}"><span class="nav-icon">👥</span> Users</a></li>
+      <li><a th:href="@{/admin/bookings}"><span class="nav-icon">🎫</span> Bookings</a></li>
+      <li><a href="/"><span class="nav-icon">🏠</span> Public Site</a></li>
+    </ul>
+  </div>
+  <div class="admin-main">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title" th:text="${train.trainId != null} ? 'Edit Train' : 'Add New Train'">Train Form</h1>
+        <div class="breadcrumb">
+          <a th:href="@{/admin/trains}">Trains</a> →
+          <span th:text="${train.trainId != null} ? 'Edit' : 'Add'"></span>
+        </div>
+      </div>
+    </div>
+
+    <div th:if="${error}" class="alert alert-error">❌ <span th:text="${error}"></span></div>
+
+    <div class="card">
+      <div class="card-body">
+        <form th:action="${train.trainId != null} ? @{/admin/trains/edit/{id}(id=${train.trainId})} : @{/admin/trains/add}"
+              method="post" th:object="${train}">
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.25rem;">
+            <div class="form-group">
+              <label class="form-label">Train Number *</label>
+              <input type="text" th:field="*{trainNumber}" class="form-control"
+                     placeholder="e.g. 12301" required maxlength="10"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Train Name *</label>
+              <input type="text" th:field="*{trainName}" class="form-control"
+                     placeholder="e.g. Howrah Rajdhani Express" required/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Source Station *</label>
+              <input type="text" th:field="*{source}" class="form-control"
+                     placeholder="e.g. New Delhi" required list="stations-admin"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Destination Station *</label>
+              <input type="text" th:field="*{destination}" class="form-control"
+                     placeholder="e.g. Howrah Junction" required list="stations-admin"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Departure Time *</label>
+              <input type="time" th:field="*{departureTime}" class="form-control" required/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Arrival Time *</label>
+              <input type="time" th:field="*{arrivalTime}" class="form-control" required/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Duration (minutes) *</label>
+              <input type="number" th:field="*{durationMinutes}" class="form-control"
+                     min="30" max="5000" placeholder="e.g. 1080"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Distance (km) *</label>
+              <input type="number" th:field="*{distanceKm}" class="form-control"
+                     min="1" max="10000" step="0.1" placeholder="e.g. 1453"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Train Type *</label>
+              <select th:field="*{trainType}" class="form-control" required>
+                <option th:each="type : ${trainTypes}"
+                        th:value="${type.name()}"
+                        th:text="${type.name().replace('_',' ')}"
+                        th:selected="${type == train.trainType}"></option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Running Days *</label>
+              <input type="text" th:field="*{runningDays}" class="form-control"
+                     placeholder="e.g. MON,TUE,WED,THU,FRI,SAT,SUN" required/>
+              <div style="font-size:0.75rem; color:var(--gray-400); margin-top:0.25rem;">
+                Comma-separated: MON,TUE,WED,THU,FRI,SAT,SUN
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group mt-3">
+            <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-weight:600;">
+              <input type="checkbox" th:field="*{active}" style="width:18px;height:18px;"/>
+              Train is Active
+            </label>
+          </div>
+
+          <div class="flex gap-2 mt-4">
+            <button type="submit" class="btn btn-primary btn-lg">
+              <span th:text="${train.trainId != null} ? '💾 Update Train' : '+ Add Train'"></span>
+            </button>
+            <a th:href="@{/admin/trains}" class="btn btn-ghost btn-lg">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<datalist id="stations-admin">
+  <option value="New Delhi"/><option value="Mumbai Central"/><option value="Howrah Junction"/>
+  <option value="Chennai Central"/><option value="Bangalore City"/><option value="Hyderabad"/>
+  <option value="Ahmedabad Junction"/><option value="Sealdah"/><option value="Varanasi"/>
+  <option value="Kolkata"/><option value="Bhopal Junction"/><option value="Pune Junction"/>
+  <option value="Jaipur Junction"/><option value="Lucknow Charbagh"/>
+</datalist>
+</body>
+</html>

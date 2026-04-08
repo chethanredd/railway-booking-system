@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login - RailWay Pro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=Outfit:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+  <link th:href="@{/css/styles.css}" rel="stylesheet"/>
+</head>
+<body>
+<div class="auth-page">
+  <!-- Left Panel -->
+  <div class="auth-left">
+    <div style="font-size:3rem; margin-bottom:1rem;">🚂</div>
+    <h2>Welcome back to<br/>RailWay Pro</h2>
+    <p>India's fastest and smartest railway ticket booking platform.</p>
+    <ul class="auth-features">
+      <li>Real-time seat availability across all classes</li>
+      <li>Book 6 passengers in a single transaction</li>
+      <li>Instant PNR generation and e-ticket</li>
+      <li>Easy cancellation with automatic refund</li>
+      <li>Zero convenience fee on all bookings</li>
+    </ul>
+    <div style="margin-top:2rem; padding:1.25rem; background:rgba(255,255,255,0.1); border-radius:12px; border:1px solid rgba(255,255,255,0.15);">
+      <div style="font-size:0.8rem; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.05em; font-weight:700; margin-bottom:0.5rem;">Demo Credentials</div>
+      <div style="font-size:0.9rem; color:#fff; margin-bottom:0.25rem;">🔵 User: <code>user@railway.in</code> / <code>user1234</code></div>
+      <div style="font-size:0.9rem; color:#fff;">🔴 Admin: <code>admin@railway.in</code> / <code>admin123</code></div>
+    </div>
+  </div>
+
+  <!-- Right Panel -->
+  <div class="auth-right">
+    <div class="auth-box animate-in">
+      <a href="/" style="display:flex; align-items:center; gap:0.5rem; text-decoration:none; margin-bottom:2rem; color:var(--gray-600);">
+        ← Back to Home
+      </a>
+      <h1>Sign In</h1>
+      <p>Enter your credentials to access your account.</p>
+
+      <div th:if="${error}" class="alert alert-error">❌ <span th:text="${error}"></span></div>
+      <div th:if="${message}" class="alert alert-success">✅ <span th:text="${message}"></span></div>
+
+      <form th:action="@{/login}" method="post">
+        <div class="form-group mb-3">
+          <label class="form-label" for="email">Email Address</label>
+          <input type="email" id="email" name="email" class="form-control"
+                 placeholder="you@example.com" required autofocus/>
+        </div>
+        <div class="form-group mb-3">
+          <label class="form-label" for="password">Password</label>
+          <input type="password" id="password" name="password" class="form-control"
+                 placeholder="••••••••" required/>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg w-full" id="loginBtn">
+          Sign In to RailWay Pro
+        </button>
+      </form>
+
+      <div style="text-align:center; margin-top:1.5rem; color:var(--gray-500); font-size:0.9rem;">
+        Don't have an account?
+        <a th:href="@{/register}" style="font-weight:700;">Create Account</a>
+      </div>
+    </div>
+  </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

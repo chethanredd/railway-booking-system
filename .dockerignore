@@ -1,0 +1,10 @@
+target/
+.git/
+.idea/
+.vscode/
+*.log
+run.log
+errors.log
+compile.log
+compile-output.txt
+README.md

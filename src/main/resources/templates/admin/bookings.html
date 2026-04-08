@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bookings - Admin - RailWay Pro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=Outfit:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+  <link th:href="@{/css/styles.css}" rel="stylesheet"/>
+</head>
+<body>
+<div class="admin-layout">
+  <div class="sidebar">
+    <div class="sidebar-brand">🚂 RailWay Pro<br/><small style="font-size:0.7rem; font-weight:400; color:rgba(255,255,255,0.5);">Admin Panel</small></div>
+    <ul class="sidebar-nav">
+      <li><a th:href="@{/admin}"><span class="nav-icon">📊</span> Dashboard</a></li>
+      <li><a th:href="@{/admin/trains}"><span class="nav-icon">🚂</span> Trains</a></li>
+      <li><a th:href="@{/admin/users}"><span class="nav-icon">👥</span> Users</a></li>
+      <li><a th:href="@{/admin/bookings}" class="active"><span class="nav-icon">🎫</span> Bookings</a></li>
+      <li><a href="/"><span class="nav-icon">🏠</span> Public Site</a></li>
+    </ul>
+  </div>
+  <div class="admin-main">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">🎫 Booking & Payment Records</h1>
+        <div class="breadcrumb" th:text="${#lists.size(payments)} + ' payment records'"></div>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Txn ID</th>
+            <th>PNR</th>
+            <th>Passenger</th>
+            <th>Route</th>
+            <th>Amount</th>
+            <th>Method</th>
+            <th>Status</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:if="${#lists.isEmpty(payments)}">
+            <td colspan="8" style="text-align:center; color:var(--gray-400); padding:2rem;">No payments recorded yet.</td>
+          </tr>
+          <tr th:each="p : ${payments}">
+            <td class="text-sm" style="font-weight:600; color:var(--primary);" th:text="${p.transactionId}"></td>
+            <td style="font-weight:700;" th:text="${p.ticket.pnr}"></td>
+            <td th:text="${p.ticket.user.name}"></td>
+            <td class="text-sm" th:text="${p.ticket.boardingStation} + ' → ' + ${p.ticket.destinationStation}"></td>
+            <td style="font-weight:700;" th:text="'₹' + ${#numbers.formatInteger(p.amount,1,'COMMA')}"></td>
+            <td th:text="${p.method.name().replace('_',' ')}"></td>
+            <td>
+              <span th:text="${p.status}"
+                    th:style="${p.status.name() == 'SUCCESS'} ? 'color:var(--success);font-weight:700' :
+                               (${p.status.name() == 'REFUNDED'} ? 'color:var(--warn);font-weight:700' :
+                               'color:var(--danger);font-weight:700')"></span>
+            </td>
+            <td class="text-sm" th:text="${#temporals.format(p.paidAt,'dd MMM yyyy')}"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</body>
+</html>

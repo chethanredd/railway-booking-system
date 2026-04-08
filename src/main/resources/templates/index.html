@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="RailWay Pro - India's Next-Gen Railway Ticket Booking. Book train tickets faster and smarter than IRCTC."/>
+  <title>RailWay Pro - Book Train Tickets Online</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;family=Outfit:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+  <link th:href="@{/css/styles.css}" rel="stylesheet"/>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="/" class="navbar-brand">
+      <div class="navbar-logo">🚂</div>
+      <span class="navbar-brand-text">Rail<span>Way</span> Pro</span>
+    </a>
+    <ul class="navbar-links">
+      <li><a href="/" class="active">Home</a></li>
+      <li><a th:href="@{/booking/pnr}">PNR Status</a></li>
+      <li sec:authorize="isAuthenticated()"><a th:href="@{/booking/my-bookings}">My Tickets</a></li>
+      <li sec:authorize="hasRole('ADMIN')"><a th:href="@{/admin}">Admin Panel</a></li>
+    </ul>
+    <div class="navbar-actions">
+      <div sec:authorize="!isAuthenticated()">
+        <a th:href="@{/register}" class="btn btn-ghost btn-sm">Register</a>
+        <a th:href="@{/login}" class="btn btn-primary btn-sm">Login</a>
+      </div>
+      <div sec:authorize="isAuthenticated()" class="flex items-center gap-2">
+        <span class="text-sm text-muted" style="font-weight:600">
+          👤 <span sec:authentication="name"></span>
+        </span>
+        <a th:href="@{/profile}" class="btn btn-outline btn-sm">Profile</a>
+        <form th:action="@{/logout}" method="post" style="display:inline">
+          <button type="submit" class="btn btn-ghost btn-sm">Logout</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- FLASH -->
+<div th:if="${success}" class="container mt-2">
+  <div class="alert alert-success">✅ <span th:text="${success}"></span></div>
+</div>
+<div th:if="${error}" class="container mt-2">
+  <div class="alert alert-error">❌ <span th:text="${error}"></span></div>
+</div>
+
+<!-- ═══ HERO ══════════════════════════════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-inner animate-in">
+    <div class="hero-badge">🚆 India's Next-Gen Railway Platform</div>
+    <h1>Book Train Tickets<br/><span class="highlight">Faster & Smarter</span></h1>
+    <p>Search from 14,000+ trains, get real-time seat availability, and book in under 60 seconds.</p>
+  </div>
+</section>
+
+<!-- ═══ SEARCH CARD ═══════════════════════════════════════════════════════ -->
+<div class="container">
+  <div class="search-card animate-in animate-delay-1">
+    <div class="search-tabs">
+      <button class="search-tab active" id="tab-book" onclick="switchTab('book')">🎫 Book Ticket</button>
+      <button class="search-tab" id="tab-pnr" onclick="switchTab('pnr')">🔍 PNR Status</button>
+      <button class="search-tab" id="tab-train" onclick="switchTab('train')">🚂 Train Info</button>
+    </div>
+
+    <!-- Book Tab -->
+    <div id="panel-book">
+      <form th:action="@{/trains/search}" method="get" id="searchForm" onsubmit="return validateSearch()">
+        <div class="search-form">
+          <div class="form-group">
+            <label class="form-label">From Station</label>
+            <div class="input-icon">
+              <span class="icon">📍</span>
+              <input type="text" name="source" id="source" class="form-control"
+                     placeholder="e.g. New Delhi" list="stations" required autocomplete="off"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">To Station</label>
+            <div class="input-icon">
+              <span class="icon">🏁</span>
+              <input type="text" name="destination" id="destination" class="form-control"
+                     placeholder="e.g. Mumbai Central" list="stations" required autocomplete="off"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Journey Date</label>
+            <div class="input-icon">
+              <span class="icon">📅</span>
+              <input type="date" name="date" id="journeyDate" class="form-control" required
+                     th:min="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}"
+                     th:max="${#temporals.format(#temporals.createNow().plusDays(120), 'yyyy-MM-dd')}"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">&nbsp;</label>
+            <button type="submit" class="btn btn-primary btn-lg w-full" id="searchBtn">
+              🔍 Search Trains
+            </button>
+          </div>
+        </div>
+        <input type="hidden" name="passengers" value="1"/>
+      </form>
+    </div>
+
+    <!-- PNR Tab -->
+    <div id="panel-pnr" class="hidden">
+      <form th:action="@{/booking/pnr}" method="get">
+        <div class="search-form" style="grid-template-columns: 1fr auto;">
+          <div class="form-group">
+            <label class="form-label">PNR Number</label>
+            <div class="input-icon">
+              <span class="icon">🎫</span>
+              <input type="text" name="pnr" class="form-control" placeholder="Enter 10-digit PNR" maxlength="10" pattern="[0-9]{10}"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">&nbsp;</label>
+            <button type="submit" class="btn btn-primary btn-lg">Check Status</button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Train Info Tab (Spot Your Train) -->
+    <div id="panel-train" class="hidden">
+      <form th:action="@{/trains/status}" method="get">
+        <div class="search-form" style="grid-template-columns: 1fr auto;">
+          <div class="form-group">
+            <label class="form-label">Spot Your Train (Name or Number)</label>
+            <div class="input-icon">
+              <span class="icon">🚂</span>
+              <input type="text" name="q" class="form-control" list="trainQueries" placeholder="Enter Train Name or Number (e.g. 12951 or Rajdhani)" required/>
+            </div>
+            <!-- Optionally let user select date offset, hidden defaults to today -->
+          </div>
+          <div class="form-group">
+            <label class="form-label">&nbsp;</label>
+            <button type="submit" class="btn btn-primary btn-lg">Find Train</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Station datalist -->
+<datalist id="stations">
+  <option th:each="station : ${stationSuggestions}" th:value="${station}"></option>
+</datalist>
+
+<datalist id="trainQueries">
+  <option th:each="item : ${trainQueries}" th:value="${item}"></option>
+</datalist>
+
+<!-- ═══ STATS BAR ════════════════════════════════════════════════════════ -->
+<section style="background:#fff; border-top:1px solid var(--border); border-bottom:1px solid var(--border); padding:1.75rem 0;">
+  <div class="container">
+    <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; text-align:center;">
+      <div>
+        <div style="font-size:2rem; font-weight:900; color:var(--primary);">14,000+</div>
+        <div class="text-muted text-sm">Trains Available</div>
+      </div>
+      <div>
+        <div style="font-size:2rem; font-weight:900; color:var(--success);">8,000+</div>
+        <div class="text-muted text-sm">Stations Covered</div>
+      </div>
+      <div>
+        <div style="font-size:2rem; font-weight:900; color:var(--accent);">60 sec</div>
+        <div class="text-muted text-sm">Average Booking Time</div>
+      </div>
+      <div>
+        <div style="font-size:2rem; font-weight:900; color:var(--danger);">₹0</div>
+        <div class="text-muted text-sm">Convenience Fee</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ POPULAR ROUTES ════════════════════════════════════════════════════ -->
+<section style="padding: 3rem 0;">
+  <div class="container">
+    <h2 class="text-2xl mb-3">🔥 Popular Routes</h2>
+    <div class="routes-grid">
+      <th:block th:each="route : ${popularRoutes}">
+        <a th:href="@{/trains/search(source=${route[0]},destination=${route[1]},date=${#temporals.format(#temporals.createNow().plusDays(1), 'yyyy-MM-dd')})}"
+           class="route-chip">
+          <div>
+            <div style="font-weight:700; font-size:0.9rem;" th:text="${route[0]}"></div>
+            <div class="text-muted text-xs">→ <span th:text="${route[1]}"></span></div>
+          </div>
+          <span class="route-arrow">→</span>
+        </a>
+      </th:block>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FEATURES ══════════════════════════════════════════════════════════ -->
+<section style="background:#fff; padding:3rem 0; border-top:1px solid var(--border);">
+  <div class="container">
+    <h2 class="text-2xl text-center mb-4">Why RailWay Pro?</h2>
+    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem;">
+      <div class="card" style="padding:1.75rem; text-align:center;">
+        <div style="font-size:2.5rem; margin-bottom:1rem;">⚡</div>
+        <h3 style="font-size:1.1rem; margin-bottom:0.5rem;">Lightning Fast</h3>
+        <p class="text-muted text-sm">Book tickets in under 60 seconds. No captchas, no waiting.</p>
+      </div>
+      <div class="card" style="padding:1.75rem; text-align:center;">
+        <div style="font-size:2.5rem; margin-bottom:1rem;">🎯</div>
+        <h3 style="font-size:1.1rem; margin-bottom:0.5rem;">Real-Time Availability</h3>
+        <p class="text-muted text-sm">Live seat availability across all classes — SL, 3A, 2A, 1A, CC.</p>
+      </div>
+      <div class="card" style="padding:1.75rem; text-align:center;">
+        <div style="font-size:2.5rem; margin-bottom:1rem;">🔒</div>
+        <h3 style="font-size:1.1rem; margin-bottom:0.5rem;">Secure Payments</h3>
+        <p class="text-muted text-sm">UPI, Net Banking, Cards — all secured with industry encryption.</p>
+      </div>
+      <div class="card" style="padding:1.75rem; text-align:center;">
+        <div style="font-size:2.5rem; margin-bottom:1rem;">↩️</div>
+        <h3 style="font-size:1.1rem; margin-bottom:0.5rem;">Easy Cancellations</h3>
+        <p class="text-muted text-sm">Cancel with one click and get instant refund calculation.</p>
+      </div>
+      <div class="card" style="padding:1.75rem; text-align:center;">
+        <div style="font-size:2.5rem; margin-bottom:1rem;">👥</div>
+        <h3 style="font-size:1.1rem; margin-bottom:0.5rem;">Group Booking</h3>
+        <p class="text-muted text-sm">Book up to 6 passengers in a single transaction.</p>
+      </div>
+      <div class="card" style="padding:1.75rem; text-align:center;">
+        <div style="font-size:2.5rem; margin-bottom:1rem;">📱</div>
+        <h3 style="font-size:1.1rem; margin-bottom:0.5rem;">Mobile Friendly</h3>
+        <p class="text-muted text-sm">Fully responsive design — book from any device, anywhere.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-grid">
+    <div>
+      <div class="footer-brand">🚂 RailWay Pro</div>
+      <p class="footer-desc">India's next-generation railway ticket booking platform. Faster, simpler, and smarter than ever.</p>
+    </div>
+    <div>
+      <div class="footer-title">Quick Links</div>
+      <ul class="footer-links">
+        <li><a href="/">Book Tickets</a></li>
+        <li><a th:href="@{/booking/pnr}">PNR Status</a></li>
+        <li><a th:href="@{/booking/my-bookings}">My Bookings</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-title">Help</div>
+      <ul class="footer-links">
+        <li><a href="#">Cancellation Policy</a></li>
+        <li><a href="#">Refund Rules</a></li>
+        <li><a href="#">Contact Support</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-title">Classes</div>
+      <ul class="footer-links">
+        <li><a href="#">Sleeper (SL)</a></li>
+        <li><a href="#">AC 3 Tier (3A)</a></li>
+        <li><a href="#">AC 2 Tier (2A)</a></li>
+        <li><a href="#">Chair Car (CC)</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 RailWay Pro. All rights reserved.</span>
+    <span>Made with ❤️ for Indian Railways passengers</span>
+  </div>
+</footer>
+
+<script th:src="@{/js/app.js}"></script>
+<script>
+  // Set today as min date
+  document.getElementById('journeyDate').valueAsDate = new Date(Date.now() + 86400000);
+
+  function switchTab(tab) {
+    ['book','pnr','train'].forEach(t => {
+      document.getElementById('panel-'+t).classList.toggle('hidden', t !== tab);
+      document.getElementById('tab-'+t).classList.toggle('active', t === tab);
+    });
+  }
+
+  function validateSearch() {
+    const src = document.getElementById('source').value.trim();
+    const dst = document.getElementById('destination').value.trim();
+    if (src.toLowerCase() === dst.toLowerCase()) {
+      alert('Source and destination cannot be the same!');
+      return false;
+    }
+    return true;
+  }
+</script>
+</body>
+</html>

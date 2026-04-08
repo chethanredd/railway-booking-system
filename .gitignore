@@ -1,0 +1,41 @@
+# Maven
+/target/
+
+# IDE
+/.idea/
+/.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs and local output
+*.log
+run.log
+errors.log
+compile.log
+compile-output.txt
+
+# Local environment and secrets
+.env
+.env.*
+*.pem
+*.key
+*.crt
+
+# Build artifacts
+*.class
+*.jar
+*.war
+
+# Docker
+.docker/
+
+# Node (if added later)
+node_modules/
+
+# Temporary files
+*.tmp
+*.swp
+*~
