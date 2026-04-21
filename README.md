@@ -98,6 +98,8 @@ mvn clean compile
 2. Run app:
 
 ```bash
+$env:MONGODB_URI="mongodb+srv://chethan:YOUR_REAL_PASSWORD@node1.kowqldc.mongodb.net/railway_pro?retryWrites=true&w=majority&appName=Node1"
+$env:MONGODB_DATABASE="railway_pro"
 mvn spring-boot:run
 ```
 

@@ -120,14 +120,19 @@ public class BookingService {
         Ticket ticket = ticketDAO.findByPnr(pnr)
                 .orElseThrow(() -> new IllegalArgumentException("Ticket not found: " + pnr));
 
-        if (!ticket.getUser().getEmail().equals(userEmail)) {
+        if (ticket.getUser() == null || ticket.getUser().getEmail() == null) {
+            throw new IllegalStateException("Ticket ownership information is missing");
+        }
+
+        if (userEmail == null || !ticket.getUser().getEmail().equalsIgnoreCase(userEmail)) {
             throw new SecurityException("You are not authorized to cancel this ticket");
         }
         if (ticket.getStatus() == Ticket.TicketStatus.CANCELLED) {
             throw new IllegalStateException("Ticket is already cancelled");
         }
 
-        ticket.getPassengers().forEach(p -> {
+        List<Passenger> passengers = ticket.getPassengers() != null ? ticket.getPassengers() : List.of();
+        passengers.forEach(p -> {
             if (p.getSeatNumber() != null && p.getCoachNumber() != null) {
                 seatDAO.findByTrainAndTravelClass(ticket.getTrain(), ticket.getTravelClass()).stream()
                         .filter(s -> p.getSeatNumber().equals(s.getSeatNumber())

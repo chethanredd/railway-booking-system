@@ -182,6 +182,10 @@ public class BookingController {
         Ticket ticket = bookingService.getTicketByPnr(pnr);
         assertTicketAccessibleByUser(ticket, user);
         model.addAttribute("ticket", ticket);
+        model.addAttribute("routeSummary", formatRouteSummary(ticket));
+        model.addAttribute("travelClassLabel", ticket.getTravelClass() != null ? ticket.getTravelClass().getDisplayName() : "Unknown");
+        model.addAttribute("journeyDateLabel", ticket.getJourneyDate() != null ? ticket.getJourneyDate().format(java.time.format.DateTimeFormatter.ofPattern("dd MMM yyyy")) : "Unknown");
+        model.addAttribute("fareLabel", String.format("Rs %,d", Math.round(ticket.getTotalFare())));
         return "cancel";
     }
 
@@ -254,5 +258,11 @@ public class BookingController {
         if (!owner && !admin) {
             throw new AccessDeniedException("You can access only your own ticket details");
         }
+    }
+
+    private String formatRouteSummary(Ticket ticket) {
+        String boardingStation = ticket.getBoardingStation() != null ? ticket.getBoardingStation() : "Unknown";
+        String destinationStation = ticket.getDestinationStation() != null ? ticket.getDestinationStation() : "Unknown";
+        return boardingStation + " -> " + destinationStation;
     }
 }

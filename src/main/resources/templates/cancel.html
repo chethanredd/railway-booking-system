@@ -47,21 +47,19 @@
           </div>
           <div>
             <div class="text-muted text-xs">Route</div>
-            <div style="font-weight:600;"
-                 th:text="${ticket.boardingStation} + ' → ' + ${ticket.destinationStation}"></div>
+            <div style="font-weight:600;" th:text="${routeSummary}"></div>
           </div>
           <div>
             <div class="text-muted text-xs">Journey Date</div>
-            <div style="font-weight:600;" th:text="${#temporals.format(ticket.journeyDate,'dd MMM yyyy')}"></div>
+            <div style="font-weight:600;" th:text="${journeyDateLabel}"></div>
           </div>
           <div>
             <div class="text-muted text-xs">Class</div>
-            <div style="font-weight:600;" th:text="${ticket.travelClass.displayName}"></div>
+            <div style="font-weight:600;" th:text="${travelClassLabel}"></div>
           </div>
           <div>
             <div class="text-muted text-xs">Amount Paid</div>
-            <div style="font-size:1.125rem; font-weight:800; color:var(--primary);"
-                 th:text="'₹' + ${#numbers.formatInteger(ticket.totalFare,1,'COMMA')}"></div>
+            <div style="font-size:1.125rem; font-weight:800; color:var(--primary);" th:text="${fareLabel}"></div>
           </div>
         </div>
       </div>
@@ -97,8 +95,8 @@
         <h2 style="font-size:1.25rem; margin-bottom:0.5rem;">Are you sure you want to cancel?</h2>
         <p class="text-muted" style="margin-bottom:1.5rem;">
           PNR <strong th:text="${ticket.pnr}"></strong> for
-          <strong th:text="${ticket.boardingStation} + ' → ' + ${ticket.destinationStation}"></strong>
-          on <strong th:text="${#temporals.format(ticket.journeyDate,'dd MMM yyyy')}"></strong>
+          <strong th:text="${routeSummary}"></strong>
+          on <strong th:text="${journeyDateLabel}"></strong>
           will be permanently cancelled.
         </p>
         <div class="flex gap-2" style="justify-content:center;">
