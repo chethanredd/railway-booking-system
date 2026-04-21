@@ -15,7 +15,7 @@ public class MongoClientConnectionExample {
     public static void main(String[] args) {
         String connectionString = System.getenv("MONGODB_URI");
         if (connectionString == null || connectionString.isBlank()) {
-            connectionString = "mongodb+srv://chethan:chethan@node1.kowqldc.mongodb.net/?appName=Node1";
+            connectionString = "mongodb+srv://chethan:<db_password>@node1.kowqldc.mongodb.net/?appName=Node1";
         }
 
         ServerApi serverApi = ServerApi.builder()
